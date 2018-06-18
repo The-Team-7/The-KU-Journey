@@ -1,0 +1,4 @@
+@bg2# @bg1# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @fighter# @gate# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @road1# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @table2# @tree# @wall1# @wall2# 
+bg2# (-2,0) 
+button_create# (802.017,269.972) 
+button_load# (804.375,373.722) 

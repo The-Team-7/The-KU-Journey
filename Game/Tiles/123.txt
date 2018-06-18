@@ -1,0 +1,1 @@
+@bg1# @bg2# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @exit# @fighter# @gate# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @resume# @road1# @save# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @table2# @tree# @wall1# @wall2# 

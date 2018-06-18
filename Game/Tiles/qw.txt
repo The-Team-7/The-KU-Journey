@@ -1,0 +1,5 @@
+@bg1-!# @bg2-"# @box-## @button_create-$# @button_load-%# @chair1-&# @chest-'# @crates-(# @darkbg-)# @fighter-*# @gate-+# @grass-,# @grass1--# @grass2-.# @grass3-/# @mainbase-0# @mario-1# @path-2# @road1-3# @sidewall1-4# @sidewall2-5# @sidewall3-6# @sidewall4-7# @stonewall-8# @table1-9# @table2-:# @tree-;# @wall1-<# @wall2-=# 
+4 (686,242) 
+5 (1196,240) (1712,496) 
+6 (1188,678) 
+8 (686,662) 

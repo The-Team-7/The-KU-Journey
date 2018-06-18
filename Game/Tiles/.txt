@@ -1,0 +1,5 @@
+@bg1# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @bg2# @fighter# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @gate# @road1# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @table2# @tree# @wall1# @wall2# 
+bg1# (-0.230957,-1.25397) 
+chest# (409.591,499.06) 
+crates# (221.783,504.923) 
+gate# (657.06,458.685) 
