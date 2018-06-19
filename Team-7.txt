@@ -2,3 +2,8 @@ Bijay Shrestha
 Pravat Pandey
 Karun Shrestha
 Anup Raj Niraula
+
+//Notes//
+
+1.After cloning this repo go to vsfiles folder and read the readme file.
+2.Clone the repo and work on it but do not commit on the main branch yet.
