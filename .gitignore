@@ -11,6 +11,9 @@
 *.userprefs
 
 abc.txt 
+Game.vcxproj
+Game.vcxproj.filters
+Game.vcxproj.user
 
 # Build results
 [Dd]ebug/
