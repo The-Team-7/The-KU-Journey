@@ -1,5 +1,3 @@
 @bg1# @bg2# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @exit# @fighter# @gate# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @resume# @road1# @save# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @table2# @tree# @wall1# @wall2# 
-bg1# {0,0,0,0,0} (-2,0) [] 
-exit# {0,0,0,0,0} (636,560) [] 
-resume# {0,0,0,0,0} (678,292) [] 
-save# {2,0,0.2,8.5,0} (714,424) [] 
+bg1# {0,0,0,0,0} (-2,0) [null] 
+save# {0,0,0,0,0} (838,622) [null] 

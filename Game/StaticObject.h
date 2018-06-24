@@ -10,12 +10,19 @@ public:
 
 public:
 
-	virtual void update(RenderWindow * win) override;
+	void update();
 	virtual void move(moves m) override;
+	void updateIBound();
+	void showIBound();
+	void hideIBound();
+	void draw(RenderWindow * win);
 
 public:
 	std::string type;
-
-
+	int depth;
+	bool shouldShowIBound;
+	std::string id;
+	FloatRect IRect;
+	RectangleShape IBound;
 };
 

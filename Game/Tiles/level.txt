@@ -1,0 +1,5 @@
+@bg1# @bg2# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @exit# @fighter# @gate# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @resume# @road1# @save# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @table2# @tree# @wall1# @wall2# 
+bg1# {0,0,0,0,0} (-8,6.10352e-05) [0] 
+crates# {0,0,0,0,0} (-15.8403,585.255) [0] (1656.47,589.195) [0] 
+mainbase# {0,24.96,71.2725,166.994,7.4175} (463.349,783.147) [electrical] (688.294,783.147) [mainbuilding] (947.276,778.708) [cedepartment] (1240.3,781.668) [0] 
+tree# {0,36.8,70.15,5.02857,8.51} (387.874,811.266) [0] (324.239,811.266) [0] (231.005,817.185) [0] (148.131,827.544) [0] (1451.92,808.306) [0] (1515.56,805.346) [0] (1579.19,800.906) [0] (1645.79,808.306) [0] 

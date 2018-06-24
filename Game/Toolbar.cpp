@@ -7,8 +7,8 @@ Toolbar::Toolbar(sg::GameDataRef _data)
 	this->_data = _data;
 	this->boxSize = sf::Vector2f(100, 100);
 
-	col = 5;
-	row = 12;
+	col = 7;
+	row = 15;
 
 	titleRect.setPosition(1500, 150);
 	titleRect.setSize(sf::Vector2f(boxSize.x*col, boxSize.y));

@@ -26,7 +26,8 @@ void IntroLevel::Init()
 	player.setRPGMODE();
 
 	
-	this->map = _data->_maploader.loadMap("demo",&this->_data->_asset);
+	this->map = _data->_maploader.loadMap("level",&this->_data->_asset);
+	map.showIBound();
 
 	//setting view//
 	zoom = 0.8f;
@@ -148,6 +149,7 @@ void IntroLevel::Update(float dt)
 	InteractionHandler();
 	view.setCenter(player.sprite.getPosition());
 	_data->_window.setView(view);
+	map.update();
 }
 
 void IntroLevel::Draw(float dt)

@@ -5,6 +5,7 @@
 #include"StaticObject.h"
 #include"Toolbar.h"
 #include"Options.h"
+#include"InputBox.h"
 
 
 class MapEditor :public sg::State
@@ -18,7 +19,8 @@ public:
 
 	enum States {
 		editorState,
-		menuState
+		menuState,
+		idManager
 	};
 
 
@@ -63,6 +65,8 @@ private:
 	Type _type;
 	std::map<std::string, std::vector<StaticObject*>> _map;
 	Map _menuMap;
+	Map _idMap;
+	InputBox idInput;
 	std::vector<std::string> _mapKey;
 	sg::MapLoader _maploader;
 	std::string _dir;
@@ -79,6 +83,7 @@ private:
 	Toolbar::box* activeBox;
 	Options* option;
 	Vector2f mousePos;
+	std::map<std::string,std::pair<int,FloatRect>> objectSettings;
 	Text infoText;
 	bool triggerInfo;
 	bool isOptionActive;

@@ -5,6 +5,7 @@
 #include "Collision.h"
 #include "EditorMenu.h"
 #include"MainMenuState.h"
+#include"ObjectSetupEditor.h"
 
 
 MapEditor::MapEditor(sg::GameDataRef _data, Type type, std::string filename)
@@ -46,35 +47,43 @@ void MapEditor::Init()
 	this->view.reset(sf::FloatRect(0, 0, 1920, 1080));
 	bgRect.setSize(mapSize);
 	bgRect.setFillColor(Color::Cyan);
-	view.setCenter(1920 / 2, 1080 / 2);
+	view.setCenter((1920/2)+110, (1080/2)+400);
 	view.zoom(zoom);
-
+	
 	infoText.setFont(this->_data->_asset.GetFont("font1"));
 	infoText.setFillColor(Color::Blue);
 	infoText.setCharacterSize(34);
-
+	
 	//initializing map object//
 	for (auto info : _data->_settings.MapTextureInfo) {
 		_map.insert(std::make_pair(info.first, *new std::vector<StaticObject*>));
 		_mapKey.push_back(info.first);
+		objectSettings[info.first] = std::make_pair(0,FloatRect(0,0,0,0));
 	}
+
 
 	if (this->_type == Type::load) {	
 		Map map = this->_maploader.loadMap(this->_filename, &_data->_asset);
 		this->_map = map.objects;
 		this->_mapKey = map.mapkey;
+
 		std::vector<std::string> tempKey;
 
 		for (auto key : map.mapkey) {
 			tempKey.push_back(key);
 		}
+
+		for (auto obj:_map) {
+			objectSettings[obj.first] = std::make_pair(_map[obj.first][0]->depth, _map[obj.first][0]->IRect);
+		}
 	}
 
 	std::string gameDir = GAMEMAPS_DIR;
 	_menuMap= this->_maploader.loadMap("EditorPauseMenu",&_data->_asset);
+	_idMap = this->_maploader.loadMap("idmanager",&_data->_asset);
+	idInput = *new InputBox(Vector2f(1920/2-200, 500), "l", "text", "Id");
 
-
-	this->toolbar->titleRect.setPosition(-530, 0);
+	this->toolbar->titleRect.setPosition(-780, 0);
 	populateToolbar();
 
 	this->state = States::editorState;
@@ -121,6 +130,15 @@ void MapEditor::HandleInput()
 						}
 						if (event.key.code == sf::Keyboard::Delete) {
 							deleteObject();
+						}
+						if (event.key.code==sf::Keyboard::RShift) {
+							
+							  if (selectedObjects.size()==1) {
+								this->state = States::idManager;
+								view.reset(sf::FloatRect(0, 0, 1920, 1080));
+								this->_data->_window.setView(view);
+								idInput.inputData = selectedObjects[0]->id;
+							}
 						}
 
 					}
@@ -319,6 +337,54 @@ void MapEditor::HandleInput()
 				}
 			}
 		}
+		if (this->state == States::idManager) {
+			idInput.update(event, _data->_settings._mouse);
+
+			if (event.type == sf::Event::KeyPressed) {
+				if (event.key.code == sf::Keyboard::Escape) {
+					idInput.text.setString("");
+					view.zoom(2);
+					this->state = States::editorState;
+				}	
+			}
+
+			if (event.type == sf::Event::MouseButtonPressed) {
+				if (event.key.code==sf::Mouse::Left) {
+					for (auto obj : _idMap.objects["save"]) {
+						if (obj->sprite.getGlobalBounds().intersects(mouseSprite.getGlobalBounds())) {
+							if (idInput.getString()=="") {
+								for (auto selectedObject : selectedObjects) {
+									selectedObject->id = "null";
+									selectedObject->sprite.setColor(Color::White);
+									selectedObjects.erase(selectedObjects.begin(), selectedObjects.end());
+								}
+							}
+							else {
+								for (auto selectedObject : selectedObjects) {
+									selectedObject->id = idInput.getString();
+									selectedObject->sprite.setColor(Color::White);
+									selectedObjects.erase(selectedObjects.begin(), selectedObjects.end());
+								}
+							
+							}
+						}
+					}
+				}
+			
+			}
+
+			if (event.type == Event::MouseMoved) {
+				for (auto obj : _idMap.objects["save"]) {
+					if (obj->sprite.getGlobalBounds().intersects(mouseSprite.getGlobalBounds())) {
+						obj->sprite.setColor(sf::Color::Black);
+					}
+					else {
+						obj->sprite.setColor(sf::Color::White);
+					}
+				}
+			}
+		}
+
 	}	
 }
 
@@ -327,6 +393,13 @@ void MapEditor::HandleInput()
 
 void MapEditor::Update(float dt)
 {
+
+
+	for (auto key : _mapKey) {
+		for (auto obj : _map[key]) {
+			obj->update();
+		}
+	}
 	if (mouseSprite.getGlobalBounds().intersects(toolbar->toolbar.getGlobalBounds())) {
 		mouseOverToolBar = true;
 	}
@@ -380,7 +453,7 @@ void MapEditor::Draw(float dt)
 
 		for (auto key : _mapKey) {
 			for (auto obj : _map[key]) {
-				obj->update(&_data->_window);
+				obj->draw(&_data->_window);
 			}
 		}
 
@@ -407,6 +480,10 @@ void MapEditor::Draw(float dt)
 		else{
 			triggerInfo = false;
 		}
+	}
+	if (this->state == States::idManager) {
+		_idMap.draw(&_data->_window);
+		idInput.draw(_data->_window);
 	}
 	_data->_window.display();
 }
@@ -599,8 +676,12 @@ void MapEditor::tileDragHandler()
 //////////////////////////////// HANDLER WHEN TILE OBJECTS FROM TOOLBAR IS DROPPED INTO MAP ////////////////////////////////////
 void MapEditor::dropTileHandler()
 {
-	Vector2f newPos = this->_data->_window.mapPixelToCoords(sf::Mouse::getPosition(this->_data->_window));
-	_map[activeBox->texture_name].push_back(new StaticObject(&_data->_asset.GetTexture(activeBox->texture_name), newPos, activeBox->texture_name));
+	Vector2f newPos = this->_data->_settings.GetMousePosition(this->_data->_window);
+	std::cout << newPos.x << "," << newPos.y<<std::endl;
+	StaticObject* obj = new StaticObject(&_data->_asset.GetTexture(activeBox->texture_name), newPos, activeBox->texture_name);
+	obj->id = "0";
+	std::cout << obj->id;
+	_map[activeBox->texture_name].push_back(obj);
 }
 
 //////////////////////////////// HANDLER FOR DELETING OBJECTS FROM MAP ////////////////////////////////////
@@ -683,6 +764,10 @@ void MapEditor::optionLeftClickHandler()
 				activeBox->isLocked = false;
 			}
 
+			if (obj.first == "settings") {
+				_data->_machine.AddState(sg::StateRef(new ObjectSetupEditor(_data,&this->objectSettings,activeBox->texture_name)),false);
+			}
+
 			updateToolbar(activeBox->texture_name);
 		}
 	}
@@ -722,8 +807,10 @@ void MapEditor::save()
 	for (auto info : _map) {
 		if (info.second.size() != 0) {
 			file << info.first << "# ";
+			file << "{" << this->objectSettings[info.first].first << "," << this->objectSettings[info.first].second.left << "," << this->objectSettings[info.first].second.top << "," << this->objectSettings[info.first].second.width << "," << this->objectSettings[info.first].second.height << "} ";
 			for (auto obj : info.second) {
 				file << "(" << obj->sprite.getPosition().x << "," << obj->sprite.getPosition().y << ") ";
+				file << "[" << obj->id << "] ";
 			}
 			file << std::endl;
 		}

@@ -49,6 +49,7 @@ Settings::Settings()
 
 void Settings::SetViewToNormal(sf::RenderWindow & win)
 {
+
 	this->view.setSize(1920,1080);
 	this->view.setCenter(1920/2,1080/2);
 	win.setView(view);

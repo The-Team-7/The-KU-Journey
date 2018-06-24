@@ -7,7 +7,7 @@ Options::Options(sg::GameDataRef _data)
 
 	this->size.x = 290;
 	this->size.y = 50;
-	std::vector<std::string> optionsName = { "lock","unlock","swap back","swap forward"};
+	std::vector<std::string> optionsName = { "lock","unlock","swap back","swap forward","settings"};
 
 	for (auto name : optionsName) {
 		this->rect[name] = new sf::RectangleShape;

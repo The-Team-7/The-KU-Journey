@@ -1,0 +1,2 @@
+@bg1# @bg2# @box# @button_create# @button_load# @chair1# @chest# @crates# @darkbg# @exit# @fighter# @gate# @grass1# @grass2# @grass3# @mainbase# @mario# @path# @resume# @road1# @save# @sidewall1# @sidewall2# @sidewall3# @sidewall4# @stonewall# @table1# @tree# @table2# @wall1# @wall2# 
+tree# {5,36.8,46,8.22857,34.27} (540,312) [hell] (522,414) [null] 

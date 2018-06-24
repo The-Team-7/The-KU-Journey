@@ -53,7 +53,7 @@ public:
 	Clock* speed_clock;
 
 public:
-	virtual void update(RenderWindow* win) = 0;
+	virtual void update(RenderWindow* win);
 	virtual void move(moves m) = 0;
 	void setDim(Vector2u dim);
 	void setManualFrameRate(int s);

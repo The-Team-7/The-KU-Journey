@@ -12,7 +12,13 @@ public:
 	Map();
 	~Map();
 	void draw(sf::RenderWindow* win);
+	void update();
 	std::map<std::string, std::vector<StaticObject*>> objects;
 	std::vector<std::string> mapkey;
+	void setDepth(std::vector<String> entities, int depth);
+	void showIBound();
+	void hideIBound();
+
+
 };
 

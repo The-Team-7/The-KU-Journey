@@ -13,6 +13,7 @@ public:
 	bool moveup = true;
 	bool movedown = true;
 	Face face;
+	int depth;
 
 public:
 	Person(Texture* tex, Vector2u dim, Vector2f pos);

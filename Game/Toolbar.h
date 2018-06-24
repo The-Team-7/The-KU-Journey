@@ -29,7 +29,6 @@ public:
 	sf::RectangleShape titleRect;
 	std::vector<box*> boxes;
 	sf::Vector2f toolbarSize;
-
 	sf::Vector2f boxSize;
 };
 
