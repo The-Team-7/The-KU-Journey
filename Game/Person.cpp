@@ -140,8 +140,14 @@ void Person::update(RenderWindow * win)
 
 	}
 
-
 	win->draw(sprite);
+	
+}
+
+void Person::draw(RenderWindow * win)
+{
+	win->draw(sprite);
+
 }
 
 

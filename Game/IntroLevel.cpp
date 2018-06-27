@@ -17,7 +17,7 @@ IntroLevel::~IntroLevel()
 void IntroLevel::Init()
 {
 
-
+	d
 	//setting up player//
 	this->_data->_asset.LoadTexture("Player", "assets//oldman.png");
 	player = *new Person(&this->_data->_asset.GetTexture("Player"), sf::Vector2u(9, 4), sf::Vector2f(500,500));
@@ -26,14 +26,14 @@ void IntroLevel::Init()
 	player.setRPGMODE();
 
 	
-	this->map = _data->_maploader.loadMap("level",&this->_data->_asset);
+	this->map = _data->_maploader.loadMap("level1",&this->_data->_asset);
 	map.showIBound();
 
 	//setting view//
-	zoom = 0.8f;
+	//zoom = 0.8f;
 	view.reset(sf::FloatRect(0, 0, 1920, 1080));
 	view.setCenter(player.sprite.getPosition());
-	view.zoom(zoom);
+	//view.zoom(zoom);
 
 }
 
@@ -76,7 +76,7 @@ bool IntroLevel::Interaction1(String entity)
 
 	bool collision = false;
 	for (auto box : this->map.objects[entity]) {
-		if (Collision::PixelPerfectTest(box->sprite, player.sprite)) {
+		if (box->IBound.getGlobalBounds().intersects(player.sprite.getGlobalBounds())) {
 			collision = true;
 		};
 	}

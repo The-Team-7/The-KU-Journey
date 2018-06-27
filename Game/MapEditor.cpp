@@ -67,15 +67,29 @@ void MapEditor::Init()
 		this->_map = map.objects;
 		this->_mapKey = map.mapkey;
 
+
+		for (auto obj : _map) {
+			objectSettings[obj.first] = std::make_pair(_map[obj.first][0]->depth, _map[obj.first][0]->IRect);
+		}
+
+
+
+		for (auto info : _data->_settings.MapTextureInfo) {
+			if (std::find(_mapKey.begin(), _mapKey.end(), info.first) != _mapKey.end()) {
+				
+			}
+			else {
+				_map.insert(std::make_pair(info.first, *new std::vector<StaticObject*>));
+				_mapKey.push_back(info.first);
+			}
+		}
+
 		std::vector<std::string> tempKey;
 
 		for (auto key : map.mapkey) {
 			tempKey.push_back(key);
 		}
 
-		for (auto obj:_map) {
-			objectSettings[obj.first] = std::make_pair(_map[obj.first][0]->depth, _map[obj.first][0]->IRect);
-		}
 	}
 
 	std::string gameDir = GAMEMAPS_DIR;

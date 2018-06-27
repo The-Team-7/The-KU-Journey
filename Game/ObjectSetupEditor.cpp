@@ -10,11 +10,11 @@ ObjectSetupEditor::ObjectSetupEditor(sg::GameDataRef& _data,std::map<std::string
 	this->entity = entity;
 	this->tex = _data->_asset.GetTexture(entity);
 	this->body.setTexture(&tex);
-	this->body.setSize(sf::Vector2f(700,400));
-	this->scale = sf::Vector2f(700.0f/tex.getSize().x, 400.0f / tex.getSize().y);
+	this->body.setSize(sf::Vector2f(800,600));
+	this->scale = sf::Vector2f(800.0f/tex.getSize().x, 600.0f / tex.getSize().y);
 	this->body.setOutlineThickness(3);
 	this->body.setOutlineColor(sf::Color::Magenta);
-	this->body.setPosition(100, 100);
+	this->body.setPosition(100, 80);
 	map = this->_data->_maploader.loadMap("objectsettingeditor",&this->_data->_asset);
 	input3 = *new InputBox(Vector2f(1200,50), "s", "text", "Name");
 	input1 = *new InputBox(Vector2f(1200,140 ), "s", "number", "Depth");
@@ -27,7 +27,7 @@ ObjectSetupEditor::ObjectSetupEditor(sg::GameDataRef& _data,std::map<std::string
 	texheightValue= *new InputBox(Vector2f(1200,760), "s", "text", "TexH");;
 	texwidthValue= *new InputBox(Vector2f(1200,850), "s", "text", "TexW");;
 	i1 = *new InterSectionBound(Vector2f(100+(700/2),100+(400/2)));
-	i1.setMaxSize(Vector2f(700,400));
+	i1.setMaxSize(Vector2f(800,700));
 	shift = 7;
 	i1.shift = shift;	
 	texH = this->tex.getSize().y;

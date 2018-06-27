@@ -28,6 +28,8 @@ private:
 	bool trigger_jump;
 	Clock* jumpClock;
 	bool rpg_mode;
+	FloatRect IRect;
+	RectangleShape IBound;
 
 
 public:
@@ -36,7 +38,9 @@ public:
 	void setRPGMODE();
 	void setImpulse(int impulse);
 	void animateMove(int r);
-	virtual void update(RenderWindow* win) override;
+	void update(RenderWindow* win) ;
+	void draw(RenderWindow* win);
 	void jump();
+
 };
 

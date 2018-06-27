@@ -1,11 +1,13 @@
-@bg1-!# @bg2-"# @box-## @button_create-$# @button_load-%# @chair1-&# @chest-'# @crates-(# @darkbg-)# @fighter-*# @gate-+# @grass-,# @grass1--# @grass2-.# @grass3-/# @mainbase-0# @mario-1# @path-2# @road1-3# @sidewall1-4# @sidewall2-5# @sidewall4-6# @wall2-7# @sidewall3-8# @stonewall-9# @table1-:# @table2-;# @tree-<# @wall1-=# 
-( (744.451,291.138) (758.167,297.017) (748.37,306.815) (748.37,306.815) (748.37,269.583) 
-+ (1210.85,783.948) 
-- (-4.67432,-4.86237) (985.729,-4.86237) (1983.9,-4.86237) (-0.0140381,985.827) (995.666,991.771) (1988.37,991.771) 
-4 (1976,772) 
-5 (1976,226) 
-6 (704,786) 
-7 (703.3,242.15) 
-8 (956,786) (1466.31,779.345) (1722,774) (960,102.71) (1211.84,100.421) (1468,94) (1722,90) 
-< (1976,408) (1978,592) 
-= (703.3,418.508) (704,606) 
+@mainbg# @base# @algaeDown# @algaeUp# @bg1# @bg2# @boneSpike# @box# @button_create# @button_load# @chain# @darkbg# @exit# @fighter# @float# @floatplatform# @grass1# @grass2# @grass3# @mudSpike# @grasschunk# @hangingSpike# @leftgrass# @greenGem# @mainbase# @mario# @path# @purpleGem# @resume# @rightgrass# @road1# @save# @tree# @yellowGem# 
+base# {0,0,0,0,0} (1.21313,819.54) [null] 
+boneSpike# {0,0,0,0,0} (632.965,484.324) [null] (1202.56,483.611) [null] 
+float# {0,0,0,0,0} (548.043,395.26) [null] 
+floatplatform# {0,0,0,0,0} (-0.814819,567.212) [null] (1600.65,555.39) [null] 
+grasschunk# {0,0,0,0,0} (-6.42484,2.30194) [null] (1496.26,0.532776) [null] 
+greenGem# {0,0,0,0,0} (917.191,968.092) [GreenGemCount] (919.229,185.295) [null] 
+hangingSpike# {0,1.29,840.4,125.499,19.8} (383.546,-595.561) [null] (1387.04,-601.777) [null] 
+mainbg# {0,0,0,0,0} (0.00012207,6.10352e-05) [null] 
+mudSpike# {0,0,0,0,0} (21.9441,81.4976) [null] (1689.31,78.3575) [null] 
+purpleGem# {0,0,0,0,0} (413.673,970.13) [PurpleGemCount] (71.2001,427.881) [null] 
+rightgrass# {3,325.5,16,93,8} (4,886) [0] (1273.84,887.562) [0] 
+yellowGem# {0,0,0,0,0} (1428.86,968.092) [YellowGemCount] (1738.72,403.418) [null] 
