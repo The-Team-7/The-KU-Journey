@@ -17,7 +17,7 @@ IntroLevel::~IntroLevel()
 void IntroLevel::Init()
 {
 
-	d
+	
 	//setting up player//
 	this->_data->_asset.LoadTexture("Player", "assets//oldman.png");
 	player = *new Person(&this->_data->_asset.GetTexture("Player"), sf::Vector2u(9, 4), sf::Vector2f(500,500));
