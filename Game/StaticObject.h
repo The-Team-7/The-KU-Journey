@@ -12,17 +12,22 @@ public:
 
 	void update();
 	virtual void move(moves m) override;
-	void updateIBound();
+	void updateBounds();
 	void showIBound();
 	void hideIBound();
+	void showCollider();
+	void hideCollider();
 	void draw(RenderWindow * win);
 
 public:
 	std::string type;
 	int depth;
 	bool shouldShowIBound;
+	bool shouldShowCollider;
 	std::string id;
 	FloatRect IRect;
+	FloatRect ColliderRect;
 	RectangleShape IBound;
+	RectangleShape Collider;
 };
 

@@ -1,6 +1,8 @@
 #include "MapLoader.h"
 #include "Settings.h"
 #include"DEFINITIONS.h"
+#include<vector>
+
 
 
 using namespace std;

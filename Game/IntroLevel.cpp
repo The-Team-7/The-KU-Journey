@@ -1,40 +1,32 @@
 #include "IntroLevel.h"
-#include "MainMenuState.h"
-#include"Collision.h"
+#include "Person.h"
+#include "Player.h"
+#include "FirstLevel.h"
 
 
 
-IntroLevel::IntroLevel(sg::GameDataRef _data)
+IntroLevel::IntroLevel(sg::GameDataRef data) :_data(data)
 {
-	this->_data = _data;
-}
-
-
-IntroLevel::~IntroLevel()
-{
+	this->convo = new sg::Conversation();
+	this->_data->_asset.LoadTexture("go", "Resource//introLevel//go.png");
+	this->go.setTexture(_data->_asset.GetTexture("go"));
+	this->go.setPosition(1622, 910);
+	this->bg.setTexture(_data->_asset.GetTexture("intro-bg"));
 }
 
 void IntroLevel::Init()
 {
-
-	
-	//setting up player//
-	this->_data->_asset.LoadTexture("Player", "assets//oldman.png");
-	player = *new Person(&this->_data->_asset.GetTexture("Player"), sf::Vector2u(9, 4), sf::Vector2f(500,500));
-	player.setSpirite(0, 2, 1, 3);
-	player.setShift(6);
-	player.setRPGMODE();
-
-	
-	this->map = _data->_maploader.loadMap("level1",&this->_data->_asset);
-	map.showIBound();
-
-	//setting view//
-	//zoom = 0.8f;
-	view.reset(sf::FloatRect(0, 0, 1920, 1080));
-	view.setCenter(player.sprite.getPosition());
-	//view.zoom(zoom);
-
+	this->convo->startConvo(INTRO, _data);
+	this->convo->next();
+	this->_data->_asset.LoadTexture("Player", "assets//oldMan.png");
+	p = *new Player();
+	p.setPosition(sf::Vector2f(180, 810));
+	p.shift = 25;
+	p.canJump = true;
+	p.isJumping = false;
+	this->opacity = 255;
+	this->transitClock = new sf::Clock();
+	this->transit.setSize(sf::Vector2f(1920, 1080));
 }
 
 void IntroLevel::HandleInput()
@@ -43,131 +35,68 @@ void IntroLevel::HandleInput()
 	while (_data->_window.pollEvent(event)) {
 		if (event.type == Event::KeyPressed) {
 
-			if (event.key.code == sf::Keyboard::Up) {
-				player.move(Person::moves::up);
-			}
-			if (event.key.code == sf::Keyboard::Down) {
-				player.move(Person::moves::down);
-			}
-			if (event.key.code == sf::Keyboard::Left) {
-				player.move(Person::moves::left);
-			}
-			if (event.key.code == sf::Keyboard::Right) {
-				player.move(Person::moves::right);
+			if (this->convo->getDisplayConversation() == false) {
+				if (event.key.code == sf::Keyboard::A) {
+					p.move(Player::moves::left);
+				}
+				if (event.key.code == sf::Keyboard::D) {
+					p.move(Player::moves::right);
+				}
+
+				if (event.key.code==sf::Keyboard::F) {
+					p.animate(Player::animation::shooting);
+				}
+				if (event.key.code == sf::Keyboard::G) {
+					p.animate(Player::animation::slash);
+				}
+				if (event.key.code == sf::Keyboard::T) {
+					p.animate(Player::animation::thrust);
+				}
+				if (event.key.code == sf::Keyboard::H) {
+					p.animate(Player::animation::spellcast);
+				}
 			}
 
+			if (p.sprite.getPosition().x <= 0) {
+				p.sprite.setPosition(0, p.sprite.getPosition().y);
+			}
+			if (p.sprite.getPosition().x >= _data->_window.getSize().x) {
+				this->_data->_machine.AddState(sg::StateRef(new FirstLevel(this->_data)), true);
+			}
 			if (event.key.code == sf::Keyboard::Space) {
-				player.jump();
+				this->convo->next();
 			}
-
 			if (event.key.code == sf::Keyboard::Escape) {
-				_data->_machine.AddState(sg::StateRef(new sg::MainMenuState(_data)), false);
+				this->_data->_machine.AddState(sg::StateRef(new sg::MainMenu(this->_data)), true);
 			}
 		}
 	}
 }
-
-bool IntroLevel::Interaction1(String entity)
-{
-	/****************************** TYPE 1 INTERACTION ************************************/
-
-	/*This function checks for the collision of player with the type of objects where restriction of movement is required*/
-	/*If there has been any interaction of player with certain type of objects then player is restricted to move in specific direction*/
-
-	bool collision = false;
-	for (auto box : this->map.objects[entity]) {
-		if (box->IBound.getGlobalBounds().intersects(player.sprite.getGlobalBounds())) {
-			collision = true;
-		};
-	}
-
-	if (collision) {
-		if (player.face == Person::Face::up) {
-			player.moveup = false;
-			player.sprite.move(0, 10);
-		}
-		else {
-			player.moveup = true;
-		}
-		if (player.face == Person::Face::down) {
-			player.movedown = false;
-			player.sprite.move(0, -10);
-		}
-		else {
-			player.movedown = true;
-		}
-		if (player.face == Person::Face::right) {
-			player.moveright = false;
-			player.sprite.move(-10, 0);
-		}
-		else {
-			player.moveright = true;
-		}
-		if (player.face == Person::Face::left) {
-			player.moveleft = false;
-			player.sprite.move(10, 0);
-		}
-		else {
-			player.moveleft = true;
-		}
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-void IntroLevel::InteractionHandler()
-{
-	/******** This function handles all type of Interactions *************/
-
-	std::vector<std::string> entity = { "tree","box","mainbase","sidewall1","sidewall2","sidewall3","stonewall","sidewall4","wall1","wall2","chair1","table1","table2","chest" }; /* entities name which belongs to type 1 Interaction */
-	bool collision1 = false; // this bool is required to check if there has been any type 1 interactions in the game//
-
-	for (auto e : entity) {
-		if (Interaction1(e)) {
-			collision1 = true; // If there has been any type 1 interaction this bool variable is set to true //
-		};
-	}
-
-	/* Type 1 interaction restricts player movement in certain direction . It is essential to free the restrictions if there is not
-	any interactions. So if no any interaction , player is allowed to move in any direction.
-	*/
-
-	if (!collision1) {
-		player.moveleft = true;
-		player.moveright = true;
-		player.moveup = true;
-		player.movedown = true;
-	}
-}
-
 
 void IntroLevel::Update(float dt)
 {
-	
-	InteractionHandler();
-	view.setCenter(player.sprite.getPosition());
-	_data->_window.setView(view);
-	map.update();
+	this->transit.setFillColor(sf::Color(0, 0, 0, opacity));
+	p.update();
+	if (this->transitClock->getElapsedTime().asMilliseconds() >= 10 && opacity != 0) {
+		if (opacity > 0) {
+			opacity -= 5;
+		}
+		if (opacity < 0) {
+			opacity = 0;
+		}
+	}
 }
 
 void IntroLevel::Draw(float dt)
 {
 	_data->_window.clear();
+	_data->_window.draw(this->bg);
 	this->map.draw(&_data->_window);
-	_data->_window.draw(player.sprite);
+	p.draw(_data->_window);
+	this->convo->draw();
+	if (convo->getDisplayConversation() == false) {
+		_data->_window.draw(this->go);
+	}
+	_data->_window.draw(transit);
 	_data->_window.display();
 }
-
-void IntroLevel::Pause()
-{
-}
-
-void IntroLevel::Resume()
-{
-	_data->_window.setView(view);
-}
-
-
-

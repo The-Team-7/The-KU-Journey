@@ -1,219 +1,386 @@
 #include "MainMenu.h"
 #include "DEFINITIONS.h"
 #include "EditorMenu.h"
-#include <iostream>
+#include "IntroLevel.h"
+#include "LoadingScreen.h"
 
+
+
+#include <iostream>
 namespace sg {
 
-	MainMenu::MainMenu(GameDataRef data, Menu type): _data(data)
+	MainMenu::MainMenu(GameDataRef data) : _data(data)
 	{
-		this->type = type;
-		this->plasmaGun = new Weapon(_data, Enums::WeaponType::plasmaGun);
-		this->clock = new sf::Clock();
 		this->mouseClicked = false;
+		this->state = MenuState::starting;
 		n = 0;
 
+		/*load these somewhere. for now i've put it here*/
+		_data->_asset.LoadTexture("parallaxSky", BACKGROUND_sky);
+		_data->_asset.LoadTexture("parallaxCloud1", BACKGROUND_cloud_1);
+		_data->_asset.LoadTexture("parallaxCloud2", BACKGROUND_cloud_2);
+		_data->_asset.LoadTexture("parallaxCloud3", BACKGROUND_cloud_3);
+		_data->_asset.LoadTexture("parallaxMountain1", BACKGROUND_mountain_1);
+		_data->_asset.LoadTexture("parallaxMountain2", BACKGROUND_mountain_2);
+		_data->_asset.LoadTexture("parallaxMountain3", BACKGROUND_mountain_3);
+
+		this->_data->_asset.LoadTexture("menu", MENU);
+		this->_data->_asset.LoadTexture("pointer", POINTER);
+		/*this->_data->_asset.LoadTexture("newGame", ICON_NEWGAME);
+		this->_data->_asset.LoadTexture("continue", ICON_CONTINUE);
+		this->_data->_asset.LoadTexture("controlls", ICON_CONTROLLS);
+		this->_data->_asset.LoadTexture("about", ICON_ABOUT);
+		*/
+		this->_data->_asset.LoadTexture("soundOn", ICON_SOUNDON);
+		this->_data->_asset.LoadTexture("soundOff", ICON_SOUNDOFF);
+		this->_data->_asset.LoadTexture("musicplay", ICON_MUSIC_PLAY);
+		this->_data->_asset.LoadTexture("musicstop", ICON_MUSIC_STOP);
+		this->_data->_asset.LoadTexture("back", ICON_BACK);
+		this->_data->_asset.LoadFont("Motira", "Resources/Motira.otf");
 	}
 	MainMenu::~MainMenu()
 	{
 	}
 	void MainMenu::Init()
 	{
-		this->_data->_asset.LoadTexture("mainMenuBg",MAIN_MENU_FILEPATH);
-		this->bg.setTexture(this->_data->_asset.getTexture("mainMenuBg"));
-		this->SpriteClicked = false;
-		
-		this->typingSound.setBuffer(this->_data->_asset.getSoundBuffer("typing"));
-		this->enterSound.setBuffer(this->_data->_asset.getSoundBuffer("typing-enter"));
+		//parallax
+		this->setParalax();
 
+
+		this->SpriteClicked = false;
+		this->pointerActive = false;
+
+		this->typingSound.setBuffer(this->_data->_asset.GetSoundBuffer("typing"));
+		this->enterSound.setBuffer(this->_data->_asset.GetSoundBuffer("typing-enter"));
+		//music
 		if (!mainMusic.openFromFile(MUSIC_MAIN)) {
 			std::cout << "music not open";
 		}
-		mainMusic.play();
 		isplaying = true;
-
-
 		playSound = true;
-		this->FillIcons();
-
-	
+		if (this->isplaying) {
+			mainMusic.play();
+		}
+		this->LoadButtons();
 	}
 	void MainMenu::HandleInput()
 	{
 		sf::Event event;
 		if (this->_data->_window.pollEvent(event)) {
-			if (sf::Event::Closed == event.type) {
-				this->_data->_window.close();
-			}
-			if (event.type == sf::Event::KeyPressed) {
-				if (event.key.code == sf::Keyboard::Escape) {
+
+			if(event.type==sf::Event::KeyPressed) {
+				if (event.key.code==sf::Keyboard::Escape) {
 					this->_data->_window.close();
 				}
 			}
-			if (event.type == sf::Event::MouseButtonPressed) {
-				for (auto i : _icons) {
-					if (this->_data->_inputManager.isSpriteClicked(i.second, sf::Mouse::Left, this->_data->_window)) {
-						if (playSound) {
-								this->typingSound.play();							
+			if (event.type == sf::Event::MouseMoved) {
+				if (this->state == MenuState::starting) {
+
+					//if (this->menuRect->contains(sf::Mouse::getPosition(_data->_window))) {
+					for (auto i : _buttonsToPoint) {
+						if (this->_data->_settings._mouse.getGlobalBounds().intersects(i->getGlobalBounds())) {
+							this->pointerActive = true;
+							this->pointer[0].setPosition(this->b.ornament1.getPosition().x - 10, i->getPosition().y - 5);
+							this->pointer[1].setPosition(this->b.ornament1.getPosition().x + this->b.ornament1.getGlobalBounds().width - this->pointer[1].getGlobalBounds().width - 10, i->getPosition().y);
+							//i->setColor(sf::Color(117, 195, 156));
+							break;
 						}
-						this->SpriteClicked = true;
-						iconClicked = i.first;
-						break;
+						else {
+							//i->setColor(sf::Color(255, 255, 255));
+							this->pointerActive = false;
+						}
 					}
+
+					//}
 				}
+			}
+			if (event.type == sf::Event::MouseButtonPressed) {
 				mouseClicked = true;
+				switch (this->state) {
+				case(MenuState::starting):
+				{
+					for (auto i : _startingState) {
+						if (this->_data->_inputManager.isSpriteClicked(*i, sf::Mouse::Left, this->_data->_window)) {
+							if (playSound) {
+								this->typingSound.play();
+							}
+							this->SpriteClicked = true;
+							iconClicked = i;
+							break;
+						}
+					}
+
+					break;
+				}
+				case(MenuState::about):
+				{
+					for (auto i : _aboutState) {
+						if (this->_data->_inputManager.isSpriteClicked(*i, sf::Mouse::Left, this->_data->_window)) {
+							if (playSound) {
+								this->typingSound.play();
+							}
+							this->SpriteClicked = true;
+							iconClicked = i;
+							break;
+						}
+					}
+					break;
+				}
+				}
 			}
 		}
 	}
 	void MainMenu::Update(float dt)
 	{
-		if (mouseClicked) {
-			if (clock->getElapsedTime().asSeconds() >= dt) {
-				plasmaGun->fire(Enums::facing::right);
-				this->clock->restart();
-				mouseClicked = false;
-			}
+
+		//moving parallax
+		{
+			this->moveparallax();
 		}
+
 		if (this->SpriteClicked) {
-			if (this->iconClicked == MenuIcon::about) {
-				_icons.clear();
+			if (this->_buttonName[this->iconClicked] == buttonName::aboutButton) {
+				this->pointerActive = false;
+				this->state = MenuState::about;
 
-				this->_data->_asset.LoadTexture("aboutDes", ABOUT_DES);
-				this->_data->_asset.LoadTexture("back", ICON_BACK);
-
-				sf::Sprite aboutDes;
-				aboutDes.setTexture(this->_data->_asset.getTexture("aboutDes"));
-				aboutDes.setPosition(SCREEN_WIDTH / 2 - aboutDes.getGlobalBounds().width / 2, SCREEN_HEIGHT / 2 - aboutDes.getGlobalBounds().height / 2);
-				this->_icons[MenuIcon::description] = aboutDes;
-
-				sf::Sprite back;
-				back.setTexture(this->_data->_asset.getTexture("back"));
-				back.setPosition(aboutDes.getPosition().x + aboutDes.getGlobalBounds().width - back.getGlobalBounds().width, aboutDes.getPosition().y + aboutDes.getGlobalBounds().height + (2*ICON_OFFSET));
-				this->_icons[MenuIcon::back] = back;
 			}
-			if (this->iconClicked == MenuIcon::back) {
-				_icons.clear();
-
-				this->FillIcons();
+			if (this->_buttonName[this->iconClicked] == buttonName::back) {
+				this->state = MenuState::starting;
 			}
-			if (this->iconClicked == MenuIcon::music) {
+			if (this->_buttonName[this->iconClicked] == buttonName::music) {
 				if (isplaying) {
 					mainMusic.stop();
-					_icons[MenuIcon::music].setTexture(this->_data->_asset.getTexture("musicstop"));
+					this->iconClicked->setTexture(this->_data->_asset.GetTexture("musicstop"));
 					isplaying = false;
 				}
 				else {
 					mainMusic.play();
-					_icons[MenuIcon::music].setTexture(this->_data->_asset.getTexture("musicplay"));
+					this->iconClicked->setTexture(this->_data->_asset.GetTexture("musicplay"));
 					isplaying = true;
 				}
 			}
-			if (this->iconClicked == MenuIcon::sound){
+			if (this->_buttonName[this->iconClicked] == buttonName::sound) {
 				if (this->playSound) {
 					this->playSound = false;
-					_icons[MenuIcon::sound].setTexture(this->_data->_asset.getTexture("soundOff"));
+					(this->iconClicked)->setTexture(this->_data->_asset.GetTexture("soundOff"));
 				}
 				else {
 					this->playSound = true;
-					_icons[MenuIcon::sound].setTexture(this->_data->_asset.getTexture("soundOn"));
+					(this->iconClicked)->setTexture(this->_data->_asset.GetTexture("soundOn"));
 				}
 			}
-			if (this->iconClicked == MenuIcon::newGame) {
+			if (this->_buttonName[this->iconClicked] == buttonName::continueGame) {
+
+			}
+			if (this->_buttonName[this->iconClicked] == buttonName::newGame) {
 				if (isplaying) {
 					mainMusic.stop();
 				}
-				this->_data->_machine.AddState(StateRef(new LoadingState(this->_data)), true);
+				this->_data->_machine.AddState(StateRef(new LoadingScreen(this->_data)), true);
 			}
-			
-
-			if (this->iconClicked==MenuIcon::mapeditor) {
-				mainMusic.stop();
-				this->_data->_machine.AddState(StateRef(new EditorMenu(this->_data)),true);
-
+			if (this->_buttonName[this->iconClicked] == buttonName::mapEditor) {
+				if (isplaying) {
+					mainMusic.stop();
+				}
+				this->_data->_machine.AddState(StateRef(new EditorMenu(this->_data)), true);
 			}
-
-
-		SpriteClicked = false;
+			SpriteClicked = false;
 		}
 	}
 	void MainMenu::Draw(float dt)
 	{
-		this->_data->_window.clear();
 
-		this->_data->_window.draw(bg);
-		//if (!_icons.empty()) {
-			for (auto i : _icons) {
-				this->_data->_window.draw(i.second);
+		this->_data->_window.clear();
+		//drawing the parallax
+		this->drawParallax();
+
+		switch (this->state) {
+		case(MenuState::about): {
+			this->_data->_window.draw(aboutText);
+			for (auto i : _aboutState) {
+				this->_data->_window.draw(*i);
 			}
-			//if (this->clock->getElapsedTime().asSeconds() >= dt) {
-				this->plasmaGun->update();
-				//this->clock->restart();
-			//}
-			
-		//}
-		
+			break;
+		}
+		case(MenuState::starting): {
+			this->_data->_window.draw(this->menuRect);
+			if (pointerActive) {
+				pointer[0].setColor(sf::Color(117, 195, 156));
+				this->_data->_window.draw(pointer[0]);
+			}
+			for (auto j : _startingState) {
+				this->_data->_window.draw(*j);
+			}
+			if (pointerActive) {
+
+				this->_data->_window.draw(pointer[1]);
+			}
+			this->_data->_window.draw(b.ornament1);
+			this->_data->_window.draw(b.ornament2);
+			break;
+		}
+		}
+
+		//this->_data->_window.draw(menu);
 		this->_data->_window.display();
 	}
+	void MainMenu::LoadButtons() {
+		sf::Vector2f pos(600, 300);
 
-	void MainMenu::FillIcons() {
-		switch (this->type) {
-			case Menu::mainMenu: {
-				this->_data->_asset.LoadTexture("newGame", ICON_NEWGAME);
-				this->_data->_asset.LoadTexture("continue", ICON_CONTINUE);
-				this->_data->_asset.LoadTexture("controlls", ICON_CONTROLLS);
-				this->_data->_asset.LoadTexture("about", ICON_ABOUT);
-				this->_data->_asset.LoadTexture("soundOn", ICON_SOUNDON);
-				this->_data->_asset.LoadTexture("soundOff", ICON_SOUNDOFF);
-				this->_data->_asset.LoadTexture("musicplay", ICON_MUSIC_PLAY);
-				this->_data->_asset.LoadTexture("musicstop", ICON_MUSIC_STOP);
-				this->_data->_asset.LoadTexture("mapeditor",MAP_EDITOR);
+		//pointer
+		pointer[0].setTexture(this->_data->_asset.GetTexture("pointer"));
+		pointer[1].setTexture(this->_data->_asset.GetTexture("pointer"));
+		menuRect.setTexture(this->_data->_asset.GetTexture("menu"));
+		menuRect.setPosition(pos);
+		//main menu
+		b.ornament1.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i0(8, 648, 621, 103);
+		b.ornament1.setTextureRect(i0);
+		b.ornament1.setPosition(pos.x + 8, pos.y + 8);
 
-				sf::Sprite newGame;
-				newGame.setTexture(this->_data->_asset.getTexture("newGame"));
-				newGame.setPosition(SCREEN_WIDTH/2 - newGame.getGlobalBounds().width/2,SCREEN_HEIGHT/2 - newGame.getGlobalBounds().height / 2);
-				this->_icons[MenuIcon::newGame] = newGame;
+		b.newGame.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i1(8/*149*/, 131, 621/*339*/, 117);
+		b.newGame.setTextureRect(i1);
+		b.newGame.setPosition(pos.x + 8/*149*/, pos.y + 131);
+		this->_startingState.push_back(&b.newGame);
+		this->_buttonsToPoint.push_back(&b.newGame);
+		this->_buttonName[&b.newGame] = buttonName::newGame;
 
-				sf::Sprite Continue;
-				Continue.setTexture(this->_data->_asset.getTexture("continue"));
-				Continue.setPosition(newGame.getPosition().x , newGame.getPosition().y + newGame.getGlobalBounds().height + ICON_OFFSET);
-				this->_icons[MenuIcon::Continue] = Continue;
+		b.Continue.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i2(8/*152*/, 266, 621/*283*/, 108);
+		b.Continue.setTextureRect(i2);
+		b.Continue.setPosition(pos.x + 8/*152*/, pos.y + 266);
+		this->_startingState.push_back(&b.Continue);
+		this->_buttonsToPoint.push_back(&b.Continue);
+		this->_buttonName[&b.Continue] = buttonName::continueGame;
 
-				sf::Sprite controlls;
-				controlls.setTexture(this->_data->_asset.getTexture("controlls"));
-				controlls.setPosition(Continue.getPosition().x, Continue.getPosition().y + Continue.getGlobalBounds().height + ICON_OFFSET);
-				this->_icons[MenuIcon::controlls] = controlls;
+		b.mapeditor.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i3(8/*151*/, 394, 621/*363*/, 114);
+		b.mapeditor.setTextureRect(i3);
+		b.mapeditor.setPosition(pos.x + 8/*151*/, pos.y + 394);
+		this->_startingState.push_back(&b.mapeditor);
+		this->_buttonsToPoint.push_back(&b.mapeditor);
+		this->_buttonName[&b.mapeditor] = buttonName::mapEditor;
 
-				sf::Sprite about;
-				about.setTexture(this->_data->_asset.getTexture("about"));
-				about.setPosition(controlls.getPosition().x, controlls.getPosition().y + controlls.getGlobalBounds().height + ICON_OFFSET);
-				this->_icons[MenuIcon::about] = about;
+		b.about.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i4(8 /*151*/, 530, 621/*220*/, 114);
+		b.about.setTextureRect(i4);
+		b.about.setPosition(pos.x + 8/*151*/, pos.y + 530);
+		this->_startingState.push_back(&b.about);
+		this->_buttonsToPoint.push_back(&b.about);
+		this->_buttonName[&b.about] = buttonName::aboutButton;
 
-				sf::Sprite mapeditor;
-				mapeditor.setTexture(this->_data->_asset.getTexture("mapeditor"));
-				mapeditor.setPosition(about.getPosition().x, about.getPosition().y + about.getGlobalBounds().height + ICON_OFFSET);
-				this->_icons[MenuIcon::mapeditor] = mapeditor;
+		b.ornament2.setTexture(this->_data->_asset.GetTexture("menu"));
+		sf::IntRect i5(8, 648, 621, 103);
+		b.ornament2.setTextureRect(i5);
+		b.ornament2.setPosition(pos.x + 8, pos.y + 648);
+		//////////////////////////////////////////////////////////////////////////////////////
 
-				sf::Sprite sound;
-				if (playSound) {
-					sound.setTexture(this->_data->_asset.getTexture("soundOn"));
-				}
-				else {
-					sound.setTexture(this->_data->_asset.getTexture("soundOff"));
-				}
-				sound.setPosition(/*SCREEN_WIDTH-sound.getGlobalBounds().width-*/ICON_OFFSET, ICON_OFFSET);
-				this->_icons[MenuIcon::sound] = sound;
+		b.back.setTexture(this->_data->_asset.GetTexture("back"));
+		b.back.setPosition(SCREEN_WIDTH - b.back.getGlobalBounds().width - ICON_OFFSET, SCREEN_HEIGHT - b.back.getGlobalBounds().height - ICON_OFFSET);
+		this->_aboutState.push_back(&b.back);
+		this->_buttonName[&b.back] = buttonName::back;
+		//text also done here
+		aboutText.setString("The KU journey is a game made as a first sem project by students of KU. \n Hope you will enjoy it.\n Also dont forget to like subscribe and hit the bell icon.");
+		aboutText.setFont(_data->_asset.GetFont("Motira"));
+		aboutText.setCharacterSize(60);
+		aboutText.setFillColor(sf::Color(18, 155, 153));
+		aboutText.setPosition(300, 500);
 
-				sf::Sprite music;
-				if (isplaying) {
-					music.setTexture(this->_data->_asset.getTexture("musicplay"));
-				}else
-				music.setTexture(this->_data->_asset.getTexture("musicstop"));
+		if (playSound) {
+			b.sound.setTexture(this->_data->_asset.GetTexture("soundOn"));
+		}
+		else {
+			b.sound.setTexture(this->_data->_asset.GetTexture("soundOff"));
+		}
+		b.sound.setPosition(SCREEN_WIDTH - b.sound.getGlobalBounds().width - ICON_OFFSET, ICON_OFFSET);
+		this->_startingState.push_back(&b.sound);
+		this->_aboutState.push_back(&b.sound);
+		this->_buttonName[&b.sound] = buttonName::sound;
 
-				music.setPosition(sound.getPosition().x, sound.getPosition().y + sound.getGlobalBounds().height + ICON_OFFSET);
-				this->_icons[MenuIcon::music] = music;
+
+		if (isplaying) {
+			b.music.setTexture(this->_data->_asset.GetTexture("musicplay"));
+		}
+		else {
+			b.music.setTexture(this->_data->_asset.GetTexture("musicstop"));
+		}
+		b.music.setPosition(b.sound.getPosition().x, b.sound.getPosition().y + b.sound.getGlobalBounds().height + ICON_OFFSET + 5);
+		this->_startingState.push_back(&b.music);
+		this->_aboutState.push_back(&b.music);
+		this->_buttonName[&b.music] = buttonName::music;
+	}
+	void MainMenu::setParalax()
+	{
+		this->bg.sky.setTexture(_data->_asset.GetTexture("parallaxSky"));
+		for (int i = 0; i < 2; i++) {
+			this->bg.p[i].cloud1.setTexture(_data->_asset.GetTexture("parallaxCloud1"));
+			this->bg.p[i].cloud2.setTexture(_data->_asset.GetTexture("parallaxCloud2"));
+			this->bg.p[i].cloud3.setTexture(_data->_asset.GetTexture("parallaxCloud3"));
+			this->bg.p[i].mountain1.setTexture(_data->_asset.GetTexture("parallaxMountain1"));
+			this->bg.p[i].mountain2.setTexture(_data->_asset.GetTexture("parallaxMountain2"));
+			this->bg.p[i].mountain3.setTexture(_data->_asset.GetTexture("parallaxMountain3"));
+
+			//if (i != 0) {
+			this->bg.p[i].cloud1.setPosition(/*this->bg.p[i - 1].cloud1.getPosition().x*/ i * 1920, 0);
+			this->bg.p[i].cloud2.setPosition(/*this->bg.p[i - 1].cloud2.getPosition().x*/  i * 1920, 0);
+			this->bg.p[i].cloud3.setPosition(/*this->bg.p[i - 1].cloud3.getPosition().x */ i * 1920, 0);
+			this->bg.p[i].mountain1.setPosition(/*this->bg.p[i - 1].mountain1.getPosition().x*/  i * 1920, 0);
+			this->bg.p[i].mountain2.setPosition(/*this->bg.p[i - 1].mountain2.getPosition().x*/  i * 1920, 0);
+			this->bg.p[i].mountain3.setPosition(/*this->bg.p[i - 1].mountain3.getPosition().x*/  i * 1920, 0);
+			//}
+		}
+	}
+	void MainMenu::drawParallax()
+	{
+		this->_data->_window.draw(bg.sky);
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].cloud1);
+		}
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].cloud2);
+		}
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].mountain1);
+		}
+
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].mountain2);
+		}
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].cloud3);
+		}
+		for (int i = 0; i < 2; i++) {
+			this->_data->_window.draw(bg.p[i].mountain3);
+		}
+	}
+	void MainMenu::moveparallax()
+	{
+		for (int i = 0; i < 2; i++) {
+			bg.p[i].cloud1.move(-1.0f / 2, 0.0f);
+			bg.p[i].cloud2.move(-1.5f / 2, 0.0f);
+			bg.p[i].cloud3.move(-2.0f / 2, 0.0f);
+			bg.p[i].mountain1.move(-1 / 2, 0);
+			bg.p[i].mountain2.move(-2 / 2, 0);
+			bg.p[i].mountain3.move(-3 / 2, 0);
+
+			if (bg.p[i].cloud1.getPosition().x <= -1920) {
+				bg.p[i].cloud1.setPosition(1920, 0);
 			}
-			case Menu::resumeMenu: {
-
+			if (bg.p[i].cloud2.getPosition().x <= -1920) {
+				bg.p[i].cloud2.setPosition(1920, 0);
+			}
+			if (bg.p[i].cloud3.getPosition().x <= -1920) {
+				bg.p[i].cloud3.setPosition(1920, 0);
+			}
+			if (bg.p[i].mountain1.getPosition().x <= -1920) {
+				bg.p[i].mountain1.setPosition(1920, 0);
+			}
+			if (bg.p[i].mountain2.getPosition().x <= -1920) {
+				bg.p[i].mountain2.setPosition(1920, 0);
+			}
+			if (bg.p[i].mountain3.getPosition().x <= -1920) {
+				bg.p[i].mountain3.setPosition(1920, 0);
 			}
 		}
 	}

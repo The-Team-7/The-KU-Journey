@@ -4,7 +4,7 @@
 #include<fstream>
 #include "Collision.h"
 #include "EditorMenu.h"
-#include"MainMenuState.h"
+#include"MainMenu.h"
 #include"ObjectSetupEditor.h"
 
 
@@ -334,7 +334,7 @@ void MapEditor::HandleInput()
 					for (auto obj : _menuMap.objects["exit"]) {
 						if (obj->sprite.getGlobalBounds().intersects(mouseSprite.getGlobalBounds())) {
 							view.reset(FloatRect(0, 0, 1920, 1080));
-							this->_data->_machine.AddState(sg::StateRef( new sg::MainMenuState(this->_data)), true);
+							this->_data->_machine.AddState(sg::StateRef( new sg::MainMenu(this->_data)), true);
 						}
 					}
 

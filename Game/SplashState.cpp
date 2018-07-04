@@ -1,6 +1,7 @@
 #include "SplashState.h"
 #include <iostream>
 #include "DEFINITIONS.h"
+#include "Mainmenu.h"
 
 namespace sg {
 
@@ -21,6 +22,8 @@ namespace sg {
 
 		this->_data->_asset.LoadTexture("Splash_State_bg", SPLASH_SCREEN_BG_PATH);
 		_bg.setTexture(this->_data->_asset.GetTexture("Splash_State_bg"));
+		this->_data->_asset.LoadSoundBuffer("typing", TYPEWRITER_typing);
+		this->_data->_asset.LoadSoundBuffer("typing-enter", TYPEWRITER_enter);
 	}
 
 	void sg::SplashState::HandleInput()
@@ -38,7 +41,7 @@ namespace sg {
 	void sg::SplashState::Update(float dt)
 	{
 		if (this->clock.getElapsedTime().asSeconds()>2.0f) {
-			this->_data->_machine.AddState(StateRef(new MainMenuState(this->_data)), true);
+			this->_data->_machine.AddState(StateRef(new MainMenu(this->_data)),true);
 		}
 	}
 

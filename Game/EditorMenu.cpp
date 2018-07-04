@@ -2,6 +2,7 @@
 #include"DialogueBox.h"
 #include"DEFINITIONS.h"
 #include"MainMenuState.h"
+#include "Mainmenu.h"
 #include"iostream"
 #include"vector"
 
@@ -41,7 +42,7 @@ void EditorMenu::HandleInput()
 	while (_data->_window.pollEvent(event)) {
 		if (event.type == sf::Event::KeyPressed) {
 			if (event.key.code==Keyboard::Escape) {
-				this->_data->_machine.AddState(sg::StateRef(new sg::MainMenuState(this->_data)),true);
+				this->_data->_machine.AddState(sg::StateRef(new sg::MainMenu(this->_data)),true);
 			}
 		}
 		if (event.type == sf::Event::MouseButtonPressed) {

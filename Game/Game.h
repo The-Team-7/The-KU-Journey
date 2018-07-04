@@ -9,6 +9,7 @@
 #include"InputManager.h"
 #include"MapLoader.h"
 #include"Settings.h"
+#include<unordered_map>
 
 namespace sg {
 
@@ -18,6 +19,7 @@ namespace sg {
 
 	////////// GAME DATA CONTAINS ALL GAME ENGINE TOOLS WHICH IS PASSED,SHARD AND USED BY GAME STATES///////
 	struct GameData {
+
 		StateMachine _machine;
 		AssetManager _asset;
 		InputManager _inputManager;
